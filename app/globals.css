@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-deep: #050810;
+  --bg-base: #080d1a;
+  --bg-card: #0d1425;
+  --bg-elevated: #111c30;
+  --bg-border: #1a2a45;
+  --neon-cyan: #00e5ff;
+  --neon-green: #00ff88;
+  --neon-amber: #ffb300;
+  --neon-red: #ff3d5a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--bg-deep);
+  color: #e0e8f0;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-border);
+  border-radius: 2px;
+}
+
+/* Grid background */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Scan line effect */
+.scan-overlay::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.15), transparent);
+  animation: scanLine 6s linear infinite;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes scanLine {
+  0% { top: -2px; }
+  100% { top: 100vh; }
+}
+
+/* Card glass effect */
+.card-glass {
+  background: linear-gradient(135deg, rgba(13, 20, 37, 0.9) 0%, rgba(17, 28, 48, 0.8) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(26, 42, 69, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+}
+
+/* Animated number */
+.number-animate {
+  animation: numberPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes numberPop {
+  0% { transform: scale(0.88); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Heartbeat dot */
+.heartbeat-dot {
+  animation: heartbeatPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes heartbeatPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  15% { transform: scale(1.5); opacity: 0.8; }
+  30% { transform: scale(1); opacity: 1; }
+  45% { transform: scale(1.3); opacity: 0.9; }
+}
+
+/* Risk ring */
+.risk-ring {
+  animation: riskPulse 2s ease-in-out infinite;
+}
+
+@keyframes riskPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Safe glow */
+.glow-safe {
+  box-shadow: 0 0 25px rgba(0, 255, 136, 0.2), 0 0 50px rgba(0, 255, 136, 0.08);
+}
+
+/* Moderate glow */
+.glow-moderate {
+  box-shadow: 0 0 25px rgba(255, 179, 0, 0.2), 0 0 50px rgba(255, 179, 0, 0.08);
+}
+
+/* Danger glow */
+.glow-danger {
+  box-shadow: 0 0 25px rgba(255, 61, 90, 0.3), 0 0 50px rgba(255, 61, 90, 0.12);
+  animation: dangerPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dangerPulse {
+  0%, 100% { box-shadow: 0 0 25px rgba(255, 61, 90, 0.3), 0 0 50px rgba(255, 61, 90, 0.12); }
+  50% { box-shadow: 0 0 40px rgba(255, 61, 90, 0.5), 0 0 80px rgba(255, 61, 90, 0.2); }
+}
+
+/* Stat card hover */
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Alert banner */
+.alert-banner {
+  animation: alertSlide 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes alertSlide {
+  0% { transform: translateY(-100%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Recharts custom */
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* Connect button */
+.connect-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.connect-btn::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, var(--neon-cyan), #4d9fff, var(--neon-cyan));
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.connect-btn:hover::before {
+  opacity: 1;
+}
+
+/* Slide up animation */
+.slide-up {
+  animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.slide-up-1 { animation-delay: 0.05s; }
+.slide-up-2 { animation-delay: 0.1s; }
+.slide-up-3 { animation-delay: 0.15s; }
+.slide-up-4 { animation-delay: 0.2s; }
+.slide-up-5 { animation-delay: 0.25s; }
+
+@keyframes slideUp {
+  0% { transform: translateY(24px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* EKG line */
+.ekg-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: ekgDraw 2s linear infinite;
+}
+
+@keyframes ekgDraw {
+  0% { stroke-dashoffset: 1000; opacity: 1; }
+  80% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}

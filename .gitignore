@@ -1,0 +1,60 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+build/
+.vite/
+
+# environment variables
+.env
+.env.local
+.env.*.local
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# cache
+.cache/
+.parcel-cache/
+
+# coverage
+coverage/
+
+# typescript
+*.tsbuildinfo
+
+# misc
+*.pem
+*.pid
+*.seed
+
+# next.js (if you ever use it)
+.next/
+out/
+
+# vite specific
+vite.config.ts.timestamp-*
+
+# mac
+.AppleDouble
+.LSOverride
+
+# windows
+ehthumbs.db
+Desktop.ini
