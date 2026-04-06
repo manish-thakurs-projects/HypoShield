@@ -42,7 +42,7 @@
   position: relative;
   transition: all 0.3s ease;
   /* Better tap targets on mobile */
-  padding: 8px 0;
+  
 }
 
 .nav li:hover {
