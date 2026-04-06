@@ -62,7 +62,13 @@ const levelColors = {
 function GaugeMeter({ score }) {
   const angle = -135 + (score / 100) * 270;
   return (
-    <svg width="120" height="80" viewBox="0 0 120 80">
+    <svg 
+      width="100%" 
+      height="auto" 
+      viewBox="0 0 120 80" 
+      preserveAspectRatio="xMidYMid meet"
+      style={{ maxWidth: 120, flexShrink: 0 }}
+    >
       <defs>
         <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#22c55e" />
@@ -116,22 +122,213 @@ export default function Dashboard() {
       fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
       color: "#e2e8f0", padding: "0 0 40px 0",
     }}>
-     
+      <style>
+        {`
+          /* Responsive styles */
+          .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+          }
+          
+          .risk-banner {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            border: 1px solid #1e3a5f;
+            border-radius: 14px;
+            padding: 22px 28px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+          }
+          
+          .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 16px;
+          }
+          
+          .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 16px;
+            margin-top: 16px;
+          }
+          
+          .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 16px;
+            margin-top: 16px;
+          }
+          
+          .alert-row {
+            border-top: 1px solid #131f30;
+            padding: 14px 20px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            transition: background 0.2s;
+          }
+          
+          .alert-row:hover {
+            background: rgba(30, 41, 59, 0.3);
+          }
+          
+          .review-btn {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 6px;
+            color: #38bdf8;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+          }
+          
+          .review-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+          }
+          
+          .stat-card {
+            transition: transform 0.2s;
+          }
+          
+          .stat-card:hover {
+            transform: translateY(-2px);
+          }
+          
+          /* Tablet and medium screens */
+          @media (max-width: 900px) {
+            .main-grid, .bottom-grid {
+              grid-template-columns: 1fr;
+              gap: 16px;
+            }
+            
+            .stats-grid {
+              gap: 12px;
+            }
+            
+            .risk-banner {
+              padding: 18px 22px;
+              gap: 20px;
+            }
+          }
+          
+          /* Mobile landscape */
+          @media (max-width: 768px) {
+            .dashboard-container {
+              padding: 0 16px;
+            }
+            
+            .stats-grid {
+              grid-template-columns: repeat(2, 1fr);
+              gap: 12px;
+            }
+            
+            .risk-banner {
+              flex-direction: column;
+              align-items: flex-start;
+              text-align: left;
+              padding: 16px 20px;
+            }
+            
+            .risk-banner > div:first-child {
+              align-self: center;
+            }
+            
+            .risk-banner > div:last-child {
+              width: 100%;
+              justify-content: space-around;
+            }
+          }
+          
+          /* Mobile portrait */
+          @media (max-width: 480px) {
+            .dashboard-container {
+              padding: 0 12px;
+            }
+            
+            .stats-grid {
+              grid-template-columns: 1fr;
+              gap: 10px;
+            }
+            
+            .risk-banner {
+              padding: 14px 16px;
+            }
+            
+            .alert-row {
+              padding: 12px 14px;
+              flex-direction: column;
+            }
+            
+            .alert-row > div:first-child {
+              width: 100%;
+              min-height: auto;
+              height: 3px;
+            }
+            
+            .review-btn {
+              padding: 6px 14px;
+              font-size: 11px;
+            }
+            
+            .stat-card div:first-child {
+              font-size: 8px;
+            }
+            
+            .stat-card span:first-of-type {
+              font-size: 28px;
+            }
+            
+            [style*="grid-template-columns: 1fr 1fr"] {
+              grid-template-columns: 1fr !important;
+              gap: 8px !important;
+            }
+          }
+          
+          /* Small mobile */
+          @media (max-width: 380px) {
+            .risk-banner > div:last-child {
+              gap: 16px;
+              flex-wrap: wrap;
+              justify-content: center;
+            }
+            
+            .risk-banner > div:last-child > div {
+              min-width: 70px;
+            }
+          }
+          
+          .fade-in {
+            animation: fadeIn 0.3s ease-in;
+          }
+          
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}
+      </style>
 
-
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 20px" }}>
+      <div className="dashboard-container">
         {/* Risk Level Banner */}
-        <div style={{ border: "1px solid #1e3a5f", borderRadius: 14, padding: "22px 28px", marginTop: 24, display: "flex", alignItems: "center", gap: 28 }}>
+        <div className="risk-banner">
           <GaugeMeter score={73} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 10, color: "#64748b", letterSpacing: "0.18em", marginBottom: 4 }}>CURRENT RISK LEVEL</div>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 34, fontWeight: 800, color: "#f59e0b", letterSpacing: "-0.02em", lineHeight: 1 }}>ELEVATED</div>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(24px, 6vw, 34px)", fontWeight: 800, color: "#f59e0b", letterSpacing: "-0.02em", lineHeight: 1 }}>ELEVATED</div>
             <div style={{ fontSize: 12, color: "#64748b", marginTop: 6 }}>Score 73 / 100 · trending upward since 06:00</div>
           </div>
-          <div style={{ display: "flex", gap: 32 }}>
+          <div style={{ display: "flex", gap: "clamp(16px, 4vw, 32px)", flexWrap: "wrap" }}>
             {[["3","CRITICAL","#ef4444"],["7","HIGH","#f59e0b"],["12","MEDIUM","#3b82f6"],["194","STABLE","#22c55e"]].map(([n,l,c]) => (
               <div key={l} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 26, fontWeight: 700, color: c, fontFamily: "'Syne',sans-serif" }}>{n}</div>
+                <div style={{ fontSize: "clamp(20px, 5vw, 26px)", fontWeight: 700, color: c, fontFamily: "'Syne',sans-serif" }}>{n}</div>
                 <div style={{ fontSize: 10, color: "#475569", letterSpacing: "0.12em", marginTop: 2 }}>{l}</div>
               </div>
             ))}
@@ -139,7 +336,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stat Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginTop: 16 }}>
+        <div className="stats-grid">
           {[
             { label: "CRITICAL ALERTS", value: "03", color: "#ef4444", sub: "↑ 3 since midnight" },
             { label: "AVG RESPONSE TIME", value: "4.2", unit: "min", color: "#f59e0b", sub: "Target: < 5 min" },
@@ -147,37 +344,37 @@ export default function Dashboard() {
             { label: "PATIENTS MONITORED", value: "214", color: "#38bdf8", sub: "97.6% sensor active" },
           ].map(s => (
             <div key={s.label} className="stat-card fade-in">
-              <div style={{ fontSize: 9, color: "#475569", letterSpacing: "0.15em", marginBottom: 8 }}>{s.label}</div>
+              <div style={{ fontSize: "clamp(8px, 2vw, 9px)", color: "#475569", letterSpacing: "0.15em", marginBottom: 8 }}>{s.label}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
-                <span style={{ fontSize: 36, fontWeight: 700, color: s.color, fontFamily: "'Syne',sans-serif", lineHeight: 1 }}>{s.value}</span>
-                {s.unit && <span style={{ fontSize: 15, color: s.color, fontWeight: 600 }}>{s.unit}</span>}
+                <span style={{ fontSize: "clamp(28px, 6vw, 36px)", fontWeight: 700, color: s.color, fontFamily: "'Syne',sans-serif", lineHeight: 1 }}>{s.value}</span>
+                {s.unit && <span style={{ fontSize: "clamp(12px, 3vw, 15px)", color: s.color, fontWeight: 600 }}>{s.unit}</span>}
               </div>
-              <div style={{ fontSize: 11, color: "#475569", marginTop: 6 }}>{s.sub}</div>
+              <div style={{ fontSize: "clamp(9px, 2vw, 11px)", color: "#475569", marginTop: 6 }}>{s.sub}</div>
             </div>
           ))}
         </div>
 
         {/* Main Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginTop: 16 }}>
+        <div className="main-grid">
           {/* Active Alerts */}
           <div style={{ background: "#0d1829", border: "1px solid #1e293b", borderRadius: 12, padding: "18px 0" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px 16px" }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0", fontFamily: "'Syne',sans-serif" }}>Active alerts — high priority</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0 20px 16px", flexWrap: "wrap", gap: 8 }}>
+              <span style={{ fontSize: "clamp(13px, 3vw, 14px)", fontWeight: 600, color: "#e2e8f0", fontFamily: "'Syne',sans-serif" }}>Active alerts — high priority</span>
               <span style={{ background: "#1e3a5f", color: "#38bdf8", borderRadius: 20, padding: "3px 12px", fontSize: 11, fontWeight: 700 }}>22 active</span>
             </div>
             {patients.map((p, i) => {
               const c = levelColors[p.level] || levelColors.MEDIUM;
               return (
-                <div key={p.id} className="alert-row" style={{ borderTop: "1px solid #131f30", padding: "14px 20px", display: "flex", gap: 14, alignItems: "flex-start", transition: "background 0.2s" }}>
+                <div key={p.id} className="alert-row">
                   <div style={{ width: 3, borderRadius: 3, background: c.bar, alignSelf: "stretch", flexShrink: 0, minHeight: 60 }} />
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: "#f1f5f9" }}>{p.name}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: 6 }}>
+                      <span style={{ fontSize: "clamp(12px, 3vw, 13px)", fontWeight: 700, color: "#f1f5f9" }}>{p.name}</span>
                       <span style={{ fontSize: 11, color: "#475569" }}>· {p.id}</span>
                       <Badge level={p.level} />
                     </div>
-                    <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.6, maxWidth: 380 }}>{p.detail}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 10 }}>
+                    <div style={{ fontSize: "clamp(10px, 2.5vw, 11px)", color: "#64748b", lineHeight: 1.6 }}>{p.detail}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 10, flexWrap: "wrap" }}>
                       <span style={{ fontSize: 10, color: "#475569" }}>{p.time}</span>
                       <button className="review-btn">Review</button>
                     </div>
@@ -191,12 +388,12 @@ export default function Dashboard() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {/* Risk Distribution */}
             <div style={{ background: "#0d1829", border: "1px solid #1e293b", borderRadius: 12, padding: 18 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "#e2e8f0", marginBottom: 14 }}>Risk distribution</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+              <div style={{ fontSize: "clamp(13px, 3vw, 14px)", fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "#e2e8f0", marginBottom: 14 }}>Risk distribution</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 14 }}>
                 {[["CRITICAL","3","#ef4444"],["HIGH","7","#f59e0b"],["MEDIUM","12","#3b82f6"],["STABLE","194","#22c55e"]].map(([l,v,c]) => (
                   <div key={l} style={{ background: "#131f30", borderRadius: 8, padding: "12px 14px", textAlign: "center" }}>
                     <div style={{ fontSize: 9, color: "#475569", letterSpacing: "0.15em", marginBottom: 4 }}>{l}</div>
-                    <div style={{ fontSize: 24, fontWeight: 700, color: c, fontFamily: "'Syne',sans-serif" }}>{v}</div>
+                    <div style={{ fontSize: "clamp(20px, 5vw, 24px)", fontWeight: 700, color: c, fontFamily: "'Syne',sans-serif" }}>{v}</div>
                   </div>
                 ))}
               </div>
@@ -212,14 +409,14 @@ export default function Dashboard() {
 
             {/* Alert Velocity */}
             <div style={{ background: "#0d1829", border: "1px solid #1e293b", borderRadius: 12, padding: 18 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "#e2e8f0", marginBottom: 14 }}>Alert velocity</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div style={{ fontSize: "clamp(13px, 3vw, 14px)", fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "#e2e8f0", marginBottom: 14 }}>Alert velocity</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
                 <div style={{ background: "#131f30", borderRadius: 8, padding: "14px", textAlign: "center" }}>
-                  <div style={{ fontSize: 26, fontWeight: 700, color: "#ef4444", fontFamily: "'Syne',sans-serif" }}>+3</div>
+                  <div style={{ fontSize: "clamp(22px, 5vw, 26px)", fontWeight: 700, color: "#ef4444", fontFamily: "'Syne',sans-serif" }}>+3</div>
                   <div style={{ fontSize: 10, color: "#475569", letterSpacing: "0.12em", marginTop: 4 }}>LAST HOUR</div>
                 </div>
                 <div style={{ background: "#131f30", borderRadius: 8, padding: "14px", textAlign: "center" }}>
-                  <div style={{ fontSize: 26, fontWeight: 700, color: "#f59e0b", fontFamily: "'Syne',sans-serif" }}>+11</div>
+                  <div style={{ fontSize: "clamp(22px, 5vw, 26px)", fontWeight: 700, color: "#f59e0b", fontFamily: "'Syne',sans-serif" }}>+11</div>
                   <div style={{ fontSize: 10, color: "#475569", letterSpacing: "0.12em", marginTop: 4 }}>LAST 6 HRS</div>
                 </div>
               </div>
@@ -228,11 +425,11 @@ export default function Dashboard() {
         </div>
 
         {/* Bottom Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginTop: 16 }}>
+        <div className="bottom-grid">
           {/* Event Timeline */}
           <div style={{ background: "#0d1829", border: "1px solid #1e293b", borderRadius: 12, padding: 18 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <span style={{ fontSize: 14, fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "#e2e8f0" }}>Event timeline</span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
+              <span style={{ fontSize: "clamp(13px, 3vw, 14px)", fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "#e2e8f0" }}>Event timeline</span>
               <span style={{ background: "#1e293b", color: "#64748b", borderRadius: 6, padding: "2px 10px", fontSize: 10, fontWeight: 600 }}>today</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -243,11 +440,11 @@ export default function Dashboard() {
                     {i < timeline.length - 1 && <div style={{ width: 1, flex: 1, background: "#1e293b", minHeight: 24, marginTop: 4 }} />}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0" }}>{e.label}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                      <span style={{ fontSize: "clamp(11px, 2.5vw, 12px)", fontWeight: 600, color: "#e2e8f0" }}>{e.label}</span>
                       <span style={{ fontSize: 11, color: "#475569" }}>{e.time}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{e.sub}</div>
+                    <div style={{ fontSize: "clamp(10px, 2.5vw, 11px)", color: "#64748b", marginTop: 2 }}>{e.sub}</div>
                   </div>
                 </div>
               ))}
@@ -256,7 +453,7 @@ export default function Dashboard() {
 
           {/* System Health */}
           <div style={{ background: "#0d1829", border: "1px solid #1e293b", borderRadius: 12, padding: 18 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "#e2e8f0", marginBottom: 16 }}>System health</div>
+            <div style={{ fontSize: "clamp(13px, 3vw, 14px)", fontWeight: 600, fontFamily: "'Syne',sans-serif", color: "#e2e8f0", marginBottom: 16 }}>System health</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {[
                 { label: "CGM sensor uptime", value: 97.6, color: "#22c55e" },
@@ -265,9 +462,9 @@ export default function Dashboard() {
                 { label: "Data sync coverage", value: 95.3, color: "#22c55e" },
               ].map(h => (
                 <div key={h.label}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "#94a3b8" }}>{h.label}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: h.color }}>{h.value}%</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, flexWrap: "wrap", gap: 4 }}>
+                    <span style={{ fontSize: "clamp(10px, 2.5vw, 11px)", color: "#94a3b8" }}>{h.label}</span>
+                    <span style={{ fontSize: "clamp(10px, 2.5vw, 11px)", fontWeight: 700, color: h.color }}>{h.value}%</span>
                   </div>
                   <HealthBar value={h.value} color={h.color} />
                 </div>
@@ -275,7 +472,7 @@ export default function Dashboard() {
             </div>
             <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 8, padding: "12px 14px", marginTop: 16 }}>
               <div style={{ fontSize: 10, color: "#f59e0b", fontWeight: 700, letterSpacing: "0.12em", marginBottom: 5 }}>⚠ API LATENCY WARNING</div>
-              <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.6 }}>Response times elevated — avg 1.4s vs target 0.8s. Monitoring.</div>
+              <div style={{ fontSize: "clamp(10px, 2.5vw, 11px)", color: "#94a3b8", lineHeight: 1.6 }}>Response times elevated — avg 1.4s vs target 0.8s. Monitoring.</div>
             </div>
           </div>
         </div>

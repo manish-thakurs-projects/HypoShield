@@ -19,13 +19,13 @@ const formatDate = (dateStr) => {
 };
 
 const riskColor = (score) =>
-  score < 34 ? "#00ff88" : score < 67 ? "#f5a623" : "#ff4d6d";
+  score < 34 ? "#22c55e" : score < 67 ? "#f59e0b" : "#ef4444";
 
 const badgeStyle = (risk) => {
   const map = {
-    safe: { bg: "rgba(0,255,136,0.1)", color: "#00ff88" },
-    moderate: { bg: "rgba(245,166,35,0.1)", color: "#f5a623" },
-    high: { bg: "rgba(255,77,109,0.1)", color: "#ff4d6d" },
+    safe: { bg: "rgba(34,197,94,0.12)", color: "#22c55e", border: "#22c55e" },
+    moderate: { bg: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "#f59e0b" },
+    high: { bg: "rgba(239,68,68,0.12)", color: "#ef4444", border: "#ef4444" },
   };
   return map[risk] || map.safe;
 };
@@ -72,14 +72,14 @@ const exportCSV = (records) => {
 const VitalChip = ({ icon, value, unit }) => (
   <div style={{
     display: "flex", alignItems: "center", gap: 6,
-    background: "#0d1515", border: "1px solid #1a2e2e",
+    background: "#0f172a", border: "1px solid #1e293b",
     borderRadius: 8, padding: "6px 12px",
   }}>
     <span style={{ fontSize: 13 }}>{icon}</span>
-    <span style={{ fontFamily: "monospace", fontSize: 13, color: "#00e5c4", fontWeight: 700 }}>
+    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "#38bdf8", fontWeight: 700 }}>
       {typeof value === "number" ? value.toLocaleString() : value}
     </span>
-    {unit && <span style={{ fontSize: 10, color: "#4a7070", marginLeft: 2 }}>{unit}</span>}
+    {unit && <span style={{ fontSize: 10, color: "#64748b", marginLeft: 2 }}>{unit}</span>}
   </div>
 );
 
@@ -89,9 +89,9 @@ const StatusBadge = ({ risk }) => {
   return (
     <span style={{
       display: "flex", alignItems: "center", gap: 5,
-      padding: "5px 12px", borderRadius: 20,
-      fontSize: 11, fontFamily: "monospace", fontWeight: 700, letterSpacing: "0.5px",
-      background: s.bg, color: s.color,
+      padding: "4px 12px", borderRadius: 20,
+      fontSize: 11, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: "0.5px",
+      background: s.bg, color: s.color, border: `1px solid ${s.border}`,
     }}>
       <span style={{ fontSize: 8 }}>●</span>{label}
     </span>
@@ -100,17 +100,17 @@ const StatusBadge = ({ risk }) => {
 
 const DetailItem = ({ label, value, unit, color }) => (
   <div style={{
-    background: "#0d1515", border: "1px solid #1a2e2e",
+    background: "#0f172a", border: "1px solid #1e293b",
     borderRadius: 10, padding: "12px 14px",
   }}>
-    <div style={{ fontSize: 9, color: "#4a7070", fontFamily: "monospace", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 6 }}>
+    <div style={{ fontSize: 9, color: "#64748b", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 6 }}>
       {label}
     </div>
     <div>
-      <span style={{ fontFamily: "monospace", fontSize: 20, fontWeight: 700, color: color || "#00e5c4" }}>
+      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700, color: color || "#38bdf8" }}>
         {typeof value === "number" ? value.toLocaleString() : value}
       </span>
-      {unit && <span style={{ fontSize: 11, color: "#4a7070", marginLeft: 4 }}>{unit}</span>}
+      {unit && <span style={{ fontSize: 11, color: "#64748b", marginLeft: 4 }}>{unit}</span>}
     </div>
   </div>
 );
@@ -130,10 +130,10 @@ const ChartView = ({ records }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
     return (
-      <div style={{ background: "#111c1c", border: "1px solid #1a2e2e", borderRadius: 10, padding: "10px 14px" }}>
-        <div style={{ fontSize: 11, fontFamily: "monospace", color: "#4a7070", marginBottom: 6 }}>{label}</div>
+      <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10, padding: "10px 14px" }}>
+        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: "#64748b", marginBottom: 6 }}>{label}</div>
         {payload.map(p => (
-          <div key={p.dataKey} style={{ fontSize: 13, fontFamily: "monospace", color: p.color, marginBottom: 2 }}>
+          <div key={p.dataKey} style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: p.color, marginBottom: 2 }}>
             {p.dataKey}: <strong>{p.value}</strong>
           </div>
         ))}
@@ -143,7 +143,7 @@ const ChartView = ({ records }) => {
 
   if (data.length < 2) {
     return (
-      <div style={{ textAlign: "center", padding: "40px 20px", color: "#4a7070", fontFamily: "monospace", fontSize: 13 }}>
+      <div style={{ textAlign: "center", padding: "40px 20px", color: "#64748b", fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>
         Add at least 2 records to see the trend chart.
       </div>
     );
@@ -151,20 +151,20 @@ const ChartView = ({ records }) => {
 
   return (
     <div style={{ marginTop: 8 }}>
-      <div style={{ fontSize: 11, color: "#00e5c4", fontFamily: "monospace", letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}>
-        // Live Trend — Heart Rate &amp; SpO₂
+      <div style={{ fontSize: 11, color: "#38bdf8", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, textTransform: "uppercase", marginBottom: 16 }}>
+        // Live Trend — Heart Rate & SpO₂
       </div>
       <ResponsiveContainer width="100%" height={260}>
         <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-          <CartesianGrid stroke="#1a2e2e" strokeDasharray="3 3" />
-          <XAxis dataKey="date" stroke="#4a7070" tick={{ fontFamily: "monospace", fontSize: 11 }} />
-          <YAxis stroke="#4a7070" tick={{ fontFamily: "monospace", fontSize: 11 }} />
+          <CartesianGrid stroke="#1e293b" strokeDasharray="3 3" />
+          <XAxis dataKey="date" stroke="#64748b" tick={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }} />
+          <YAxis stroke="#64748b" tick={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }} />
           <Tooltip content={<CustomTooltip />} />
-          <Legend wrapperStyle={{ fontFamily: "monospace", fontSize: 12 }} />
-          <Line type="monotone" dataKey="HR" stroke="#00e5c4" strokeWidth={2} dot={{ r: 4, fill: "#00e5c4" }} />
-          <Line type="monotone" dataKey="SpO2" stroke="#00ff88" strokeWidth={2} dot={{ r: 4, fill: "#00ff88" }} />
-          <Line type="monotone" dataKey="AvgHR" stroke="#f5a623" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
-          <Line type="monotone" dataKey="MinSpO2" stroke="#4a7070" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+          <Legend wrapperStyle={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }} />
+          <Line type="monotone" dataKey="HR" stroke="#38bdf8" strokeWidth={2} dot={{ r: 4, fill: "#38bdf8" }} />
+          <Line type="monotone" dataKey="SpO2" stroke="#22c55e" strokeWidth={2} dot={{ r: 4, fill: "#22c55e" }} />
+          <Line type="monotone" dataKey="AvgHR" stroke="#f59e0b" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+          <Line type="monotone" dataKey="MinSpO2" stroke="#64748b" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -178,11 +178,11 @@ const RecordCard = ({ record, onDelete }) => {
 
   return (
     <div style={{
-      background: "#111c1c",
-      border: `1px solid ${expanded ? "rgba(0, 0, 0, 0)" : "#1a2e2e"}`,
+      background: "#0d1829",
+      border: `1px solid ${expanded ? "#1e3a5f" : "#1e293b"}`,
       borderRadius: 14, overflow: "hidden",
       transition: "border-color 0.2s, box-shadow 0.2s",
-      boxShadow: expanded ? "0 0 24px rgba(0,229,196,0.05)" : "none",
+      boxShadow: expanded ? "0 0 24px rgba(56,189,248,0.05)" : "none",
     }}>
       {/* Header Row */}
       <div
@@ -196,23 +196,23 @@ const RecordCard = ({ record, onDelete }) => {
         {/* Date Block */}
         <div style={{
           display: "flex", flexDirection: "column", alignItems: "center",
-          background: "#0d1515", border: "1px solid #1a2e2e",
+          background: "#0f172a", border: "1px solid #1e293b",
           borderRadius: 10, padding: "8px 14px", minWidth: 56,
         }}>
-          <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 700, color: "#00e5c4", lineHeight: 1 }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 700, color: "#38bdf8", lineHeight: 1 }}>
             {d.day}
           </span>
-          <span style={{ fontSize: 10, color: "#4a7070", fontFamily: "monospace", letterSpacing: 1, marginTop: 3 }}>
+          <span style={{ fontSize: 10, color: "#64748b", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1, marginTop: 3 }}>
             {d.month}
           </span>
         </div>
 
         {/* Meta */}
         <div style={{ flex: 1, minWidth: 120 }}>
-          <div style={{ fontSize: 11, color: "#4a7070", fontFamily: "monospace", marginBottom: 4 }}>
+          <div style={{ fontSize: 11, color: "#64748b", fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>
             {d.full} · {record.time || "—"}
           </div>
-          <div style={{ fontSize: 15, fontWeight: 600, color: "#cce8e4" }}>Daily Health Record</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "#e2e8f0" }}>Daily Health Record</div>
         </div>
 
         {/* Vitals */}
@@ -225,7 +225,7 @@ const RecordCard = ({ record, onDelete }) => {
 
         {/* Chevron */}
         <span style={{
-          color: "#4a7070", fontSize: 14, marginLeft: 8,
+          color: "#64748b", fontSize: 14, marginLeft: 8,
           transform: expanded ? "rotate(180deg)" : "none",
           transition: "transform 0.2s", display: "inline-block",
         }}>▾</span>
@@ -236,7 +236,7 @@ const RecordCard = ({ record, onDelete }) => {
         <div
           onClick={e => e.stopPropagation()}
           style={{
-            padding: "0 20px 20px", borderTop: "1px solid #1a2e2e", paddingTop: 18,
+            padding: "0 20px 20px", borderTop: "1px solid #1e293b", paddingTop: 18,
             animation: "fadeIn 0.2s ease",
           }}
         >
@@ -256,7 +256,7 @@ const RecordCard = ({ record, onDelete }) => {
           </div>
 
           {/* Risk bar */}
-          <div style={{ height: 4, background: "#0d1515", borderRadius: 2, overflow: "hidden", marginBottom: 14 }}>
+          <div style={{ height: 4, background: "#0f172a", borderRadius: 2, overflow: "hidden", marginBottom: 14 }}>
             <div style={{
               height: "100%", borderRadius: 2,
               width: `${record.score}%`,
@@ -267,14 +267,14 @@ const RecordCard = ({ record, onDelete }) => {
 
           {/* AI Insight */}
           <div style={{
-            background: "rgba(0,229,196,0.04)", border: "1px solid rgba(0,229,196,0.15)",
+            background: "rgba(56,189,248,0.04)", border: "1px solid rgba(56,189,248,0.15)",
             borderRadius: 10, padding: "12px 16px",
-            display: "flex", alignItems: "flex-start", gap: 10,
+            display: "flex", alignItems: "flex-start", gap: 10, flexWrap: "wrap",
           }}>
-            <span style={{ fontSize: 10, fontFamily: "monospace", color: "#00e5c4", letterSpacing: 1, whiteSpace: "nowrap" }}>
+            <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#38bdf8", letterSpacing: 1 }}>
               AI INSIGHT
             </span>
-            <span style={{ fontSize: 13, color: "#cce8e4", opacity: 0.8, lineHeight: 1.5 }}>
+            <span style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.5 }}>
               {record.insight}
             </span>
           </div>
@@ -284,13 +284,13 @@ const RecordCard = ({ record, onDelete }) => {
             <button
               onClick={() => onDelete(record.id)}
               style={{
-                background: "transparent", border: "1px solid rgba(255,77,109,0.3)",
-                color: "rgba(255,77,109,0.6)", borderRadius: 7, padding: "6px 14px",
-                fontSize: 11, fontFamily: "monospace", cursor: "pointer",
-                transition: "all 0.15s",
+                background: "transparent", border: "1px solid rgba(239,68,68,0.3)",
+                color: "#ef4444", borderRadius: 7, padding: "6px 14px",
+                fontSize: 11, fontFamily: "'JetBrains Mono', monospace", cursor: "pointer",
+                transition: "all 0.15s", opacity: 0.7,
               }}
-              onMouseEnter={e => { e.target.style.borderColor = "#ff4d6d"; e.target.style.color = "#ff4d6d"; }}
-              onMouseLeave={e => { e.target.style.borderColor = "rgba(255,77,109,0.3)"; e.target.style.color = "rgba(255,77,109,0.6)"; }}
+              onMouseEnter={e => { e.target.style.opacity = "1"; e.target.style.borderColor = "#ef4444"; }}
+              onMouseLeave={e => { e.target.style.opacity = "0.7"; e.target.style.borderColor = "rgba(239,68,68,0.3)"; }}
             >
               ✕ DELETE RECORD
             </button>
@@ -337,15 +337,15 @@ const AddForm = ({ onSave, onCancel }) => {
   };
 
   const inputStyle = {
-    width: "100%", background: "#0d1515",
-    border: "1px solid #1a2e2e", borderRadius: 8,
-    padding: "9px 12px", color: "#cce8e4",
+    width: "100%", background: "#0f172a",
+    border: "1px solid #1e293b", borderRadius: 8,
+    padding: "9px 12px", color: "#e2e8f0",
     fontFamily: "'DM Sans', sans-serif", fontSize: 14,
-    outline: "none",
+    outline: "none", transition: "border-color 0.15s",
   };
   const labelStyle = {
-    display: "block", fontSize: 10, color: "#4a7070",
-    fontFamily: "monospace", letterSpacing: 1,
+    display: "block", fontSize: 10, color: "#64748b",
+    fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
     textTransform: "uppercase", marginBottom: 6,
   };
 
@@ -364,12 +364,12 @@ const AddForm = ({ onSave, onCancel }) => {
 
   return (
     <div style={{
-      background: "#111c1c", border: "1px solid #1a2e2e",
+      background: "#0d1829", border: "1px solid #1e293b",
       borderRadius: 14, padding: 22, marginBottom: 24,
       animation: "slideDown 0.2s ease",
     }}>
       <style>{`@keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }`}</style>
-      <div style={{ fontSize: 11, color: "#00e5c4", fontFamily: "monospace", letterSpacing: 2, textTransform: "uppercase", marginBottom: 18 }}>
+      <div style={{ fontSize: 11, color: "#38bdf8", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, textTransform: "uppercase", marginBottom: 18 }}>
         // New Daily Record
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 14, marginBottom: 14 }}>
@@ -403,19 +403,27 @@ const AddForm = ({ onSave, onCancel }) => {
           onChange={e => set("insight", e.target.value)}
         />
       </div>
-      <div style={{ display: "flex", gap: 10 }}>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <button onClick={handleSave} style={{
-          background: "#000a34", color: "#0a0f0f",
+          background: "#38bdf8", color: "#0f172a",
           border: "none", borderRadius: 8, padding: "9px 20px",
-          fontFamily: "monospace", fontSize: 12, fontWeight: 700, cursor: "pointer",
-        }}>
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, cursor: "pointer",
+          transition: "opacity 0.15s",
+        }}
+        onMouseEnter={e => e.target.style.opacity = "0.9"}
+        onMouseLeave={e => e.target.style.opacity = "1"}
+        >
           SAVE RECORD
         </button>
         <button onClick={onCancel} style={{
-          background: "transparent", color: "#4a7070",
-          border: "1px solid #1a2e2e", borderRadius: 8, padding: "9px 20px",
-          fontFamily: "monospace", fontSize: 12, cursor: "pointer",
-        }}>
+          background: "transparent", color: "#64748b",
+          border: "1px solid #1e293b", borderRadius: 8, padding: "9px 20px",
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 12, cursor: "pointer",
+          transition: "border-color 0.15s",
+        }}
+        onMouseEnter={e => e.target.style.borderColor = "#38bdf8"}
+        onMouseLeave={e => e.target.style.borderColor = "#1e293b"}
+        >
           CANCEL
         </button>
       </div>
@@ -449,59 +457,72 @@ export default function HypoShieldHistory() {
   const filtered = filter === "all" ? records : records.filter(r => r.risk === filter);
 
   const btnBase = {
-    background: "transparent", border: "1px solid #1a2e2e",
+    background: "transparent", border: "1px solid #1e293b",
     borderRadius: 20, padding: "5px 14px",
-    fontSize: 12, fontFamily: "monospace", cursor: "pointer",
-    transition: "all 0.15s",
+    fontSize: 12, fontFamily: "'JetBrains Mono', monospace", cursor: "pointer",
+    transition: "all 0.15s", color: "#64748b",
   };
-  const btnActive = { ...btnBase, borderColor: "#00e5c4", color: "#00e5c4", background: "rgba(0,229,196,0.06)" };
-  const btnInactive = { ...btnBase, color: "#4a7070" };
+  const btnActive = { ...btnBase, borderColor: "#38bdf8", color: "#38bdf8", background: "rgba(56,189,248,0.06)" };
+  const btnInactive = { ...btnBase, color: "#64748b" };
 
   return (
     <div style={{
-      background: "#0a0f0f", color: "#cce8e4",
+      background: "#00000000",
       fontFamily: "'DM Sans', sans-serif",
       minHeight: "100vh", padding: 24,
     }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
-        * { box-sizing: border-box; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        input[type=number]::-webkit-inner-spin-button { opacity: 0.3; }
-        select option { background: #111c1c; }
-      `}</style>
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          @media (max-width: 640px) {
+            .history-header {
+              flex-direction: column;
+              align-items: flex-start;
+            }
+            .filter-bar {
+              flex-wrap: wrap;
+            }
+          }
+        `}
+      </style>
 
       {/* Header */}
-      <div style={{
+      <div className="history-header" style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        marginBottom: 28, paddingBottom: 18, borderBottom: "1px solid #1a2e2e",
+        marginBottom: 28, paddingBottom: 18, borderBottom: "1px solid #1e293b",
         flexWrap: "wrap", gap: 12,
       }}>
         <div>
-          <span style={{ fontFamily: "monospace", fontSize: 20, fontWeight: 700, color: "#00e5c4" }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 700, color: "#38bdf8" }}>
             HypoShield
           </span>
-          <span style={{ color: "#cce8e4", opacity: 0.4, fontFamily: "monospace", fontSize: 13, marginLeft: 10 }}>
+          <span style={{ color: "#64748b", fontFamily: "'JetBrains Mono', monospace", fontSize: 13, marginLeft: 10 }}>
             | Patient History
           </span>
         </div>
-        <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <button
             onClick={() => exportCSV(records)}
             style={{
-              background: "transparent", border: "1px solid #1a2e2e",
-              color: "#4a7070", borderRadius: 8, padding: "9px 16px",
-              fontFamily: "monospace", fontSize: 12, cursor: "pointer",
+              background: "transparent", border: "1px solid #1e293b",
+              color: "#64748b", borderRadius: 8, padding: "9px 16px",
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 12, cursor: "pointer",
+              transition: "all 0.15s",
             }}
+            onMouseEnter={e => { e.target.style.borderColor = "#38bdf8"; e.target.style.color = "#38bdf8"; }}
+            onMouseLeave={e => { e.target.style.borderColor = "#1e293b"; e.target.style.color = "#64748b"; }}
           >
             ↓ EXPORT CSV
           </button>
           <button
             onClick={() => setShowForm(v => !v)}
             style={{
-              background: "#00e5c4", color: "#0a0f0f",
+              background: "#38bdf8", color: "#0f172a",
               border: "none", borderRadius: 8, padding: "9px 18px",
-              fontFamily: "monospace", fontSize: 12, fontWeight: 700, cursor: "pointer",
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, cursor: "pointer",
             }}
           >
             ＋ ADD RECORD
@@ -513,14 +534,14 @@ export default function HypoShieldHistory() {
       {showForm && <AddForm onSave={addRecord} onCancel={() => setShowForm(false)} />}
 
       {/* Filter + View toggle */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 11, color: "#4a7070", fontFamily: "monospace", letterSpacing: 1 }}>FILTER:</span>
+      <div className="filter-bar" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 11, color: "#64748b", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1 }}>FILTER:</span>
         {["all", "safe", "moderate", "high"].map(f => (
           <button key={f} style={filter === f ? btnActive : btnInactive} onClick={() => setFilter(f)}>
             {f === "all" ? "All" : f === "high" ? "High Risk" : f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
-        <span style={{ marginLeft: "auto", fontSize: 11, color: "#4a7070", fontFamily: "monospace" }}>
+        <span style={{ marginLeft: "auto", fontSize: 11, color: "#64748b", fontFamily: "'JetBrains Mono', monospace" }}>
           {filtered.length} record{filtered.length !== 1 ? "s" : ""}
         </span>
         <div style={{ display: "flex", gap: 6, marginLeft: 16 }}>
@@ -531,7 +552,7 @@ export default function HypoShieldHistory() {
 
       {/* Chart View */}
       {view === "chart" && (
-        <div style={{ background: "#111c1c", border: "1px solid #1a2e2e", borderRadius: 14, padding: 24, marginBottom: 24 }}>
+        <div style={{ background: "#0d1829", border: "1px solid #1e293b", borderRadius: 14, padding: 24, marginBottom: 24 }}>
           <ChartView records={filtered} />
         </div>
       )}
@@ -540,7 +561,7 @@ export default function HypoShieldHistory() {
       {view === "list" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {filtered.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 20px", color: "#4a7070", fontFamily: "monospace", fontSize: 13 }}>
+            <div style={{ textAlign: "center", padding: "60px 20px", color: "#64748b", fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>
               <div style={{ fontSize: 36, marginBottom: 14, opacity: 0.4 }}>📋</div>
               No records found for this filter.
             </div>

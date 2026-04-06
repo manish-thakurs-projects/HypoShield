@@ -1,3 +1,4 @@
+/* Header.module.css */
 
 .container {
   width: 100%;
@@ -5,34 +6,32 @@
   align-items: center;
   justify-content: flex-end;
   margin-right: 100px;
- 
 }
-.header {
-  border-radius: 0 0 0 30px;
-  width: 20%;
-  height: 70px;
-  padding: 0 40px;
 
+.header {
+  /* Remove fixed width to let content determine size naturally */
+  width: auto;
+  min-height: 70px;
+  height: auto;
+  padding: 0 40px;
+  
   display: flex;
   align-items: center;
   justify-content: space-between;
-
+  
   background: rgba(15, 17, 25, 0.506);
   backdrop-filter: blur(2px);
-
+  
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-.active {
-  color: #fff !important;
+  border-radius: 0 0 0 30px;
 }
 
-.active::after {
-  width: 100% !important;
-}
 .nav {
   display: flex;
   gap: 30px;
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .nav li {
@@ -42,8 +41,9 @@
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
+  /* Better tap targets on mobile */
+  padding: 8px 0;
 }
-
 
 .nav li:hover {
   color: #fff;
@@ -62,4 +62,85 @@
 
 .nav li:hover::after {
   width: 100%;
+}
+
+.active {
+  color: #fff !important;
+}
+
+.active::after {
+  width: 100% !important;
+}
+
+/* Tablet Styles (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .container {
+    margin-right: 40px;
+  }
+  
+  .header {
+    padding: 0 30px;
+    min-height: 65px;
+  }
+  
+  .nav {
+    gap: 25px;
+  }
+  
+  .nav li {
+    font-size: 14px;
+  }
+}
+
+/* Mobile Styles (max-width: 768px) */
+@media (max-width: 768px) {
+  .container {
+    justify-content: center;
+    margin-right: 0;
+    padding: 0 16px;
+  }
+  
+  .header {
+    width: 100%;
+    max-width: 600px;
+    padding: 12px 20px;
+    min-height: auto;
+    border-radius: 0 0 0 20px;
+  }
+  
+  .nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px 24px;
+  }
+  
+  .nav li {
+    font-size: 14px;
+    padding: 6px 0;
+  }
+  
+  .nav li::after {
+    bottom: -4px;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 12px;
+  }
+  
+  .header {
+    padding: 10px 16px;
+    border-radius: 0 0 0 16px;
+  }
+  
+  .nav {
+    gap: 16px;
+  }
+  
+  .nav li {
+    font-size: 13px;
+    padding: 5px 0;
+  }
 }
