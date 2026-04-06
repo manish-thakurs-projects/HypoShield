@@ -99,7 +99,7 @@ function ConnectScreen({
           </div>
 
           <h1
-            className="text-4xl sm:text-5xl md:text-6xl font-display font-extrabold tracking-tighter mb-2 sm:mb-3 px-2"
+            className="text-4xl sm:text-5xl md:text-5xl font-display font-extrabold tracking-tighter mb-2 sm:mb-3 px-2"
             style={{
               background: 'linear-gradient(135deg, #00e5ff 0%, #4d9fff 50%, #00ff88 100%)',
               WebkitBackgroundClip: 'text',
