@@ -5,9 +5,34 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid, Legend
 } from "recharts";
+import { calculateRisk } from "@/components/RiskIndicator"; // adjust import path as needed
+
+/* ─── Types (match HealthData from useBluetooth) ─────────────── */
+interface HealthData {
+  heartRate: number;
+  spo2: number;
+  activity: number;
+  timestamp: Date;
+}
+
+interface HistoryRecord {
+  id: number;
+  date: string;
+  time: string;
+  hr: number;
+  spo2: number;
+  steps: number;
+  avgHR: number;
+  minSpO2: number;
+  duration: string;
+  readings: number;
+  risk: "safe" | "moderate" | "high";
+  score: number;
+  insight: string;
+}
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
-const formatDate = (dateStr) => {
+const formatDate = (dateStr: string) => {
   const d = new Date(dateStr + "T00:00:00");
   return {
     day: d.getDate().toString().padStart(2, "0"),
@@ -18,11 +43,11 @@ const formatDate = (dateStr) => {
   };
 };
 
-const riskColor = (score) =>
+const riskColor = (score: number) =>
   score < 34 ? "#22c55e" : score < 67 ? "#f59e0b" : "#ef4444";
 
-const badgeStyle = (risk) => {
-  const map = {
+const badgeStyle = (risk: string) => {
+  const map: Record<string, { bg: string; color: string; border: string }> = {
     safe: { bg: "rgba(34,197,94,0.12)", color: "#22c55e", border: "#22c55e" },
     moderate: { bg: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "#f59e0b" },
     high: { bg: "rgba(239,68,68,0.12)", color: "#ef4444", border: "#ef4444" },
@@ -30,26 +55,68 @@ const badgeStyle = (risk) => {
   return map[risk] || map.safe;
 };
 
-const SEED_DATA = [
-  {
-    id: 1,
-    date: "2026-04-06", time: "11:16:53",
-    hr: 59, spo2: 98, steps: 496,
-    avgHR: 77, minSpO2: 93,
-    duration: "1m 30s", readings: 60,
-    risk: "safe", score: 0,
-    insight: "All vitals within normal range. You're doing great — keep it up!",
-  },
-];
+// Generate an AI insight based on vitals and risk level
+function generateInsight(hr: number, spo2: number, steps: number, riskLevel: string): string {
+  if (riskLevel === "high") {
+    if (hr > 110) return "Heart rate elevated above 110 bpm. Consider rest and hydration.";
+    if (spo2 < 90) return "SpO₂ critically low (<90%). Seek medical attention immediately.";
+    return "High risk detected – monitor closely and consult a physician.";
+  }
+  if (riskLevel === "moderate") {
+    if (hr > 95) return "Heart rate slightly elevated. Deep breathing may help.";
+    if (spo2 < 94) return "Oxygen saturation borderline. Ensure good ventilation.";
+    return "Moderate risk – some values outside optimal range.";
+  }
+  return "All vitals within normal range. You're doing great – keep it up!";
+}
 
-const EMPTY_FORM = {
-  date: "", time: "", hr: "", spo2: "", steps: "",
-  avgHR: "", minSpO2: "", duration: "", readings: "",
-  risk: "safe", score: "", insight: "",
-};
+/* ─── Load vitals from localStorage and transform ────────────── */
+function loadVitalsFromLocalStorage(): HealthData[] {
+  if (typeof window === "undefined") return [];
+  const raw = localStorage.getItem("hyposhield_vitals_history");
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.map((item: any) => ({
+        ...item,
+        timestamp: new Date(item.timestamp),
+      }));
+    }
+  } catch (e) {
+    console.error("Failed to parse vitals", e);
+  }
+  return [];
+}
+
+function vitalsToHistoryRecords(vitals: HealthData[]): HistoryRecord[] {
+  return vitals.map((v, idx) => {
+    const risk = calculateRisk(v);
+    const riskLevel = risk.level === "HIGH RISK" ? "high" : risk.level === "MODERATE" ? "moderate" : "safe";
+    const score = risk.score;
+    const dateStr = v.timestamp.toISOString().split("T")[0];
+    const timeStr = v.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+    return {
+      id: v.timestamp.getTime(),
+      date: dateStr,
+      time: timeStr,
+      hr: v.heartRate,
+      spo2: v.spo2,
+      steps: v.activity,
+      avgHR: v.heartRate,      // single reading
+      minSpO2: v.spo2,
+      duration: "1 reading",
+      readings: 1,
+      risk: riskLevel as "safe" | "moderate" | "high",
+      score: score,
+      insight: generateInsight(v.heartRate, v.spo2, v.activity, riskLevel),
+    };
+  }).sort((a, b) => b.id - a.id); // newest first
+}
 
 /* ─── CSV Export ──────────────────────────────────────────────── */
-const exportCSV = (records) => {
+const exportCSV = (records: HistoryRecord[]) => {
   const headers = [
     "Date","Time","HR (bpm)","SpO2 (%)","Steps",
     "Avg HR","Min SpO2","Duration","Readings","Risk","Score","Insight"
@@ -67,9 +134,8 @@ const exportCSV = (records) => {
   URL.revokeObjectURL(url);
 };
 
-/* ─── Subcomponents ────────────────────────────────────────────── */
-
-const VitalChip = ({ icon, value, unit }) => (
+/* ─── Subcomponents (unchanged except props) ─────────────────── */
+const VitalChip = ({ icon, value, unit }: { icon: string; value: number; unit?: string }) => (
   <div style={{
     display: "flex", alignItems: "center", gap: 6,
     background: "#0f172a", border: "1px solid #1e293b",
@@ -77,13 +143,13 @@ const VitalChip = ({ icon, value, unit }) => (
   }}>
     <span style={{ fontSize: 13 }}>{icon}</span>
     <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: "#38bdf8", fontWeight: 700 }}>
-      {typeof value === "number" ? value.toLocaleString() : value}
+      {value.toLocaleString()}
     </span>
     {unit && <span style={{ fontSize: 10, color: "#64748b", marginLeft: 2 }}>{unit}</span>}
   </div>
 );
 
-const StatusBadge = ({ risk }) => {
+const StatusBadge = ({ risk }: { risk: string }) => {
   const label = risk === "safe" ? "SAFE" : risk === "moderate" ? "MODERATE" : "HIGH RISK";
   const s = badgeStyle(risk);
   return (
@@ -98,7 +164,7 @@ const StatusBadge = ({ risk }) => {
   );
 };
 
-const DetailItem = ({ label, value, unit, color }) => (
+const DetailItem = ({ label, value, unit, color }: { label: string; value: number | string; unit?: string; color?: string }) => (
   <div style={{
     background: "#0f172a", border: "1px solid #1e293b",
     borderRadius: 10, padding: "12px 14px",
@@ -115,10 +181,9 @@ const DetailItem = ({ label, value, unit, color }) => (
   </div>
 );
 
-/* ─── Chart View ──────────────────────────────────────────────── */
-const ChartView = ({ records }) => {
+const ChartView = ({ records }: { records: HistoryRecord[] }) => {
   const data = [...records]
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .map(r => ({
       date: r.date.slice(5),
       HR: r.hr,
@@ -127,12 +192,12 @@ const ChartView = ({ records }) => {
       MinSpO2: r.minSpO2,
     }));
 
-  const CustomTooltip = ({ active, payload, label }) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
     return (
       <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10, padding: "10px 14px" }}>
         <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: "#64748b", marginBottom: 6 }}>{label}</div>
-        {payload.map(p => (
+        {payload.map((p: any) => (
           <div key={p.dataKey} style={{ fontSize: 13, fontFamily: "'JetBrains Mono', monospace", color: p.color, marginBottom: 2 }}>
             {p.dataKey}: <strong>{p.value}</strong>
           </div>
@@ -171,8 +236,7 @@ const ChartView = ({ records }) => {
   );
 };
 
-/* ─── Record Card ─────────────────────────────────────────────── */
-const RecordCard = ({ record, onDelete }) => {
+const RecordCard = ({ record, onDelete }: { record: HistoryRecord; onDelete: (id: number) => void }) => {
   const [expanded, setExpanded] = useState(false);
   const d = formatDate(record.date);
 
@@ -212,7 +276,7 @@ const RecordCard = ({ record, onDelete }) => {
           <div style={{ fontSize: 11, color: "#64748b", fontFamily: "'JetBrains Mono', monospace", marginBottom: 4 }}>
             {d.full} · {record.time || "—"}
           </div>
-          <div style={{ fontSize: 15, fontWeight: 600, color: "#e2e8f0" }}>Daily Health Record</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "#e2e8f0" }}>Health Reading</div>
         </div>
 
         {/* Vitals */}
@@ -279,7 +343,7 @@ const RecordCard = ({ record, onDelete }) => {
             </span>
           </div>
 
-          {/* Delete */}
+          {/* Delete (only for local removal, does not affect original vitals) */}
           <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
             <button
               onClick={() => onDelete(record.id)}
@@ -289,10 +353,10 @@ const RecordCard = ({ record, onDelete }) => {
                 fontSize: 11, fontFamily: "'JetBrains Mono', monospace", cursor: "pointer",
                 transition: "all 0.15s", opacity: 0.7,
               }}
-              onMouseEnter={e => { e.target.style.opacity = "1"; e.target.style.borderColor = "#ef4444"; }}
-              onMouseLeave={e => { e.target.style.opacity = "0.7"; e.target.style.borderColor = "rgba(239,68,68,0.3)"; }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.borderColor = "#ef4444"; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = "0.7"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)"; }}
             >
-              ✕ DELETE RECORD
+              ✕ HIDE FROM VIEW
             </button>
           </div>
         </div>
@@ -301,158 +365,33 @@ const RecordCard = ({ record, onDelete }) => {
   );
 };
 
-/* ─── Add Record Form ─────────────────────────────────────────── */
-const AddForm = ({ onSave, onCancel }) => {
-  const [form, setForm] = useState({ ...EMPTY_FORM });
+/* ─── Main Component ──────────────────────────────────────────── */
+export default function HypoShieldHistory() {
+  const [records, setRecords] = useState<HistoryRecord[]>([]);
+  const [filter, setFilter] = useState("all");
+  const [view, setView] = useState<"list" | "chart">("list");
+
+  // Load vitals from localStorage and convert to records
+  const refreshData = () => {
+    const vitals = loadVitalsFromLocalStorage();
+    const newRecords = vitalsToHistoryRecords(vitals);
+    setRecords(newRecords);
+  };
 
   useEffect(() => {
-    const now = new Date();
-    setForm(f => ({
-      ...f,
-      date: now.toISOString().split("T")[0],
-      time: now.toTimeString().slice(0, 5),
-    }));
+    refreshData();
+    // Optional: listen for storage changes from other tabs
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "hyposhield_vitals_history") refreshData();
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-  const handleSave = () => {
-    if (!form.date || !form.hr || !form.spo2) {
-      alert("Date, Heart Rate, and SpO₂ are required.");
-      return;
-    }
-    onSave({
-      id: Date.now(),
-      date: form.date, time: form.time,
-      hr: +form.hr, spo2: +form.spo2,
-      steps: +form.steps || 0,
-      avgHR: +form.avgHR || +form.hr,
-      minSpO2: +form.minSpO2 || +form.spo2,
-      duration: form.duration || "—",
-      readings: +form.readings || 0,
-      risk: form.risk,
-      score: +form.score || 0,
-      insight: form.insight || "No insight recorded.",
-    });
+  // Delete record – only hides from UI (does not remove from original vitals storage)
+  const deleteRecord = (id: number) => {
+    setRecords(prev => prev.filter(r => r.id !== id));
   };
-
-  const inputStyle = {
-    width: "100%", background: "#0f172a",
-    border: "1px solid #1e293b", borderRadius: 8,
-    padding: "9px 12px", color: "#e2e8f0",
-    fontFamily: "'DM Sans', sans-serif", fontSize: 14,
-    outline: "none", transition: "border-color 0.15s",
-  };
-  const labelStyle = {
-    display: "block", fontSize: 10, color: "#64748b",
-    fontFamily: "'JetBrains Mono', monospace", letterSpacing: 1,
-    textTransform: "uppercase", marginBottom: 6,
-  };
-
-  const fields = [
-    { label: "Date", key: "date", type: "date" },
-    { label: "Time", key: "time", type: "time" },
-    { label: "Heart Rate (bpm)", key: "hr", type: "number", placeholder: "e.g. 72" },
-    { label: "SpO₂ (%)", key: "spo2", type: "number", placeholder: "e.g. 98" },
-    { label: "Steps", key: "steps", type: "number", placeholder: "e.g. 4500" },
-    { label: "Avg HR (bpm)", key: "avgHR", type: "number", placeholder: "e.g. 77" },
-    { label: "Min SpO₂ (%)", key: "minSpO2", type: "number", placeholder: "e.g. 93" },
-    { label: "Session Duration", key: "duration", type: "text", placeholder: "e.g. 1m 30s" },
-    { label: "Readings Taken", key: "readings", type: "number", placeholder: "e.g. 60" },
-    { label: "Risk Score (0-100)", key: "score", type: "number", placeholder: "e.g. 0" },
-  ];
-
-  return (
-    <div style={{
-      background: "#0d1829", border: "1px solid #1e293b",
-      borderRadius: 14, padding: 22, marginBottom: 24,
-      animation: "slideDown 0.2s ease",
-    }}>
-      <style>{`@keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }`}</style>
-      <div style={{ fontSize: 11, color: "#38bdf8", fontFamily: "'JetBrains Mono', monospace", letterSpacing: 2, textTransform: "uppercase", marginBottom: 18 }}>
-        // New Daily Record
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 14, marginBottom: 14 }}>
-        {fields.map(f => (
-          <div key={f.key}>
-            <label style={labelStyle}>{f.label}</label>
-            <input
-              style={inputStyle} type={f.type}
-              placeholder={f.placeholder}
-              value={form[f.key]}
-              onChange={e => set(f.key, e.target.value)}
-            />
-          </div>
-        ))}
-        <div>
-          <label style={labelStyle}>Risk Level</label>
-          <select style={inputStyle} value={form.risk} onChange={e => set("risk", e.target.value)}>
-            <option value="safe">Safe</option>
-            <option value="moderate">Moderate</option>
-            <option value="high">High Risk</option>
-          </select>
-        </div>
-      </div>
-      <div style={{ marginBottom: 18 }}>
-        <label style={labelStyle}>AI Insight</label>
-        <input
-          style={{ ...inputStyle, width: "100%" }}
-          type="text"
-          placeholder="e.g. All vitals within normal range..."
-          value={form.insight}
-          onChange={e => set("insight", e.target.value)}
-        />
-      </div>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <button onClick={handleSave} style={{
-          background: "#38bdf8", color: "#0f172a",
-          border: "none", borderRadius: 8, padding: "9px 20px",
-          fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, cursor: "pointer",
-          transition: "opacity 0.15s",
-        }}
-        onMouseEnter={e => e.target.style.opacity = "0.9"}
-        onMouseLeave={e => e.target.style.opacity = "1"}
-        >
-          SAVE RECORD
-        </button>
-        <button onClick={onCancel} style={{
-          background: "transparent", color: "#64748b",
-          border: "1px solid #1e293b", borderRadius: 8, padding: "9px 20px",
-          fontFamily: "'JetBrains Mono', monospace", fontSize: 12, cursor: "pointer",
-          transition: "border-color 0.15s",
-        }}
-        onMouseEnter={e => e.target.style.borderColor = "#38bdf8"}
-        onMouseLeave={e => e.target.style.borderColor = "#1e293b"}
-        >
-          CANCEL
-        </button>
-      </div>
-    </div>
-  );
-};
-
-/* ─── Main App ────────────────────────────────────────────────── */
-export default function HypoShieldHistory() {
-  const [records, setRecords] = useState(() => {
-    try {
-      const saved = localStorage.getItem("hypoRecords");
-      return saved ? JSON.parse(saved) : SEED_DATA;
-    } catch { return SEED_DATA; }
-  });
-  const [showForm, setShowForm] = useState(false);
-  const [filter, setFilter] = useState("all");
-  const [view, setView] = useState("list"); // "list" | "chart"
-
-  useEffect(() => {
-    try { localStorage.setItem("hypoRecords", JSON.stringify(records)); } catch {}
-  }, [records]);
-
-  const addRecord = (rec) => {
-    setRecords(r => [rec, ...r]);
-    setShowForm(false);
-  };
-
-  const deleteRecord = (id) => setRecords(r => r.filter(x => x.id !== id));
 
   const filtered = filter === "all" ? records : records.filter(r => r.risk === filter);
 
@@ -500,38 +439,25 @@ export default function HypoShieldHistory() {
             HypoShield
           </span>
           <span style={{ color: "#64748b", fontFamily: "'JetBrains Mono', monospace", fontSize: 13, marginLeft: 10 }}>
-            | Patient History
+            | Sensor History
           </span>
         </div>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <button
-            onClick={() => exportCSV(records)}
+            onClick={() => exportCSV(filtered)}
             style={{
               background: "transparent", border: "1px solid #1e293b",
               color: "#64748b", borderRadius: 8, padding: "9px 16px",
               fontFamily: "'JetBrains Mono', monospace", fontSize: 12, cursor: "pointer",
               transition: "all 0.15s",
             }}
-            onMouseEnter={e => { e.target.style.borderColor = "#38bdf8"; e.target.style.color = "#38bdf8"; }}
-            onMouseLeave={e => { e.target.style.borderColor = "#1e293b"; e.target.style.color = "#64748b"; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "#38bdf8"; e.currentTarget.style.color = "#38bdf8"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "#1e293b"; e.currentTarget.style.color = "#64748b"; }}
           >
             ↓ EXPORT CSV
           </button>
-          <button
-            onClick={() => setShowForm(v => !v)}
-            style={{
-              background: "#38bdf8", color: "#0f172a",
-              border: "none", borderRadius: 8, padding: "9px 18px",
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 700, cursor: "pointer",
-            }}
-          >
-            ＋ ADD RECORD
-          </button>
         </div>
       </div>
-
-      {/* Form */}
-      {showForm && <AddForm onSave={addRecord} onCancel={() => setShowForm(false)} />}
 
       {/* Filter + View toggle */}
       <div className="filter-bar" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
@@ -563,7 +489,7 @@ export default function HypoShieldHistory() {
           {filtered.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 20px", color: "#64748b", fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>
               <div style={{ fontSize: 36, marginBottom: 14, opacity: 0.4 }}>📋</div>
-              No records found for this filter.
+              No sensor readings found. Please connect a device or start the demo mode.
             </div>
           ) : (
             filtered.map(r => <RecordCard key={r.id} record={r} onDelete={deleteRecord} />)

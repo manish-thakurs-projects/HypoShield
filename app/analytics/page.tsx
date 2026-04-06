@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import {
   AreaChart, Area, LineChart, Line, BarChart, Bar,
@@ -89,7 +89,6 @@ function TrendChart({ data, dataKey, color, label, unit, subtitle, yMin, yMax, r
 
   return (
     <div className="card-glass rounded-2xl p-4 sm:p-5 mb-4">
-      {/* Header - responsive stacking */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-3">
         <div>
           <div className="text-[10px] sm:text-xs font-display font-semibold uppercase tracking-widest mb-1"
@@ -108,7 +107,6 @@ function TrendChart({ data, dataKey, color, label, unit, subtitle, yMin, yMax, r
         </div>
       </div>
 
-      {/* Chart - responsive height */}
       <div className="w-full" style={{ height: 'clamp(140px, 30vw, 180px)' }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
@@ -148,7 +146,6 @@ function TrendChart({ data, dataKey, color, label, unit, subtitle, yMin, yMax, r
         </ResponsiveContainer>
       </div>
 
-      {/* Annotations - wrap on small screens */}
       {annotations && annotations.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
           {annotations.map((ann, i) => (
@@ -177,7 +174,6 @@ function HRZoneChart({ data }: { data: HealthData[] }) {
         style={{ color: 'rgba(77,159,255,.5)' }}>Distribution</div>
       <div className="text-sm sm:text-base font-display font-bold text-slate-200 mb-4">HR Zone Breakdown</div>
 
-      {/* Zone labels - responsive grid */}
       <div className="grid grid-cols-5 gap-1 mb-1">
         {barData.map((z) => (
           <div key={z.label} className="text-center text-[8px] sm:text-[9px] font-display font-bold uppercase tracking-wider truncate"
@@ -185,7 +181,6 @@ function HRZoneChart({ data }: { data: HealthData[] }) {
         ))}
       </div>
       
-      {/* Zone percentages - responsive bars */}
       <div className="grid grid-cols-5 gap-1 mb-4">
         {barData.map((z) => {
           const alpha = 0.15 + (z.count / Math.max(...barData.map(b => b.count || 1))) * 0.7;
@@ -198,7 +193,6 @@ function HRZoneChart({ data }: { data: HealthData[] }) {
         })}
       </div>
 
-      {/* Detailed breakdown - responsive */}
       <div className="space-y-2">
         {barData.map((z) => (
           <div key={z.label} className="flex items-center gap-2">
@@ -230,7 +224,6 @@ function RiskTimeline({ data }: { data: HealthData[] }) {
         style={{ color: 'rgba(255,61,90,.5)' }}>Timeline</div>
       <div className="text-sm sm:text-base font-display font-bold text-slate-200 mb-4">Risk Level History</div>
 
-      {/* Risk timeline bars - responsive */}
       <div className="flex gap-0.5 h-4 rounded-lg overflow-hidden mb-1">
         {slice.map((d, i) => {
           const risk = calculateRisk(d);
@@ -242,7 +235,6 @@ function RiskTimeline({ data }: { data: HealthData[] }) {
         <span>Oldest</span><span>Most Recent</span>
       </div>
 
-      {/* Legend - responsive wrap */}
       <div className="flex flex-wrap gap-3 sm:gap-4">
         {[
           { label: 'SAFE', count: counts.safe, color: '#00ff88' },
@@ -260,34 +252,77 @@ function RiskTimeline({ data }: { data: HealthData[] }) {
   );
 }
 
+// Helper to load from localStorage
+function loadVitalsFromLocalStorage(): HealthData[] {
+  if (typeof window === "undefined") return [];
+  const raw = localStorage.getItem("hyposhield_vitals_history");
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.map((item: any) => ({
+        ...item,
+        timestamp: new Date(item.timestamp),
+      }));
+    }
+  } catch (e) {
+    console.error("Failed to parse vitals", e);
+  }
+  return [];
+}
+
 export default function AnalyticsPage() {
   const bluetooth = useBluetooth();
   const [timeRange, setTimeRange] = useState<TimeRange>('1m');
   const [now, setNow] = useState(new Date());
   const [isMobile, setIsMobile] = useState(false);
+  const [localData, setLocalData] = useState<HealthData[]>([]);
 
+  // Load from localStorage on mount, and whenever bluetooth.history changes (which also updates localStorage)
   useEffect(() => {
-    if (!bluetooth.isConnected) bluetooth.simulateData();
+    const stored = loadVitalsFromLocalStorage();
+    setLocalData(stored);
+  }, []);
+
+  // Also update localData when bluetooth.history changes (for live BLE or simulation)
+  useEffect(() => {
+    if (bluetooth.history.length > 0) {
+      setLocalData(bluetooth.history);
+    }
+  }, [bluetooth.history]);
+
+  // Periodically check localStorage for updates from other tabs/windows
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const stored = loadVitalsFromLocalStorage();
+      if (stored.length !== localData.length || 
+          JSON.stringify(stored.map(d => d.timestamp.getTime())) !== JSON.stringify(localData.map(d => d.timestamp.getTime()))) {
+        setLocalData(stored);
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [localData]);
+
+  // Time and resize effects
+  useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
-    
-    // Check for mobile screen size
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
     return () => {
       clearInterval(t);
       window.removeEventListener('resize', checkMobile);
     };
   }, []);
 
+  // Use localData as the primary data source
   const windowedData = useMemo(() => {
-    const h = bluetooth.history;
+    const h = localData;
     if (timeRange === '1m') return h.slice(-40);
     if (timeRange === '5m') return h.slice(-Math.min(h.length, 80));
     if (timeRange === '10m') return h.slice(-Math.min(h.length, 100));
     return h;
-  }, [bluetooth.history, timeRange]);
+  }, [localData, timeRange]);
 
   const hrVals   = windowedData.map((d) => d.heartRate);
   const spo2Vals = windowedData.map((d) => d.spo2);
@@ -296,18 +331,25 @@ export default function AnalyticsPage() {
 
   const hrPct = windowedData.length ? Math.round((avg(hrVals) - 75) / 75 * 100) : 0;
 
+  // Manual simulation starter (does not auto-start)
+  const startSimulation = () => {
+    if (!bluetooth.isConnected) {
+      bluetooth.simulateData();
+    }
+  };
+
   return (
     <div>
       <main className="px-3 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-6xl mx-auto">
-        {/* Page title + range selector - responsive stack */}
+        {/* Page title + range selector */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-5 gap-3">
           <div>
             <h1 className="text-xl sm:text-2xl font-display font-extrabold text-slate-100">Health Analytics</h1>
             <p className="text-xs sm:text-sm text-slate-600 mt-0.5 font-body break-words">
-              Real-time trends · {bluetooth.deviceName ?? 'HypoShield (Demo)'} · ESP32 BLE
+              Real-time trends · {bluetooth.deviceName ?? 'Local Data'} · {localData.length} samples stored
             </p>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 items-center">
             {(['1m', '5m', '10m', 'all'] as TimeRange[]).map((r) => (
               <button key={r} onClick={() => setTimeRange(r)}
                 className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 rounded-lg font-display font-bold uppercase transition-all duration-150"
@@ -319,10 +361,26 @@ export default function AnalyticsPage() {
                 {r}
               </button>
             ))}
+            <button onClick={startSimulation}
+              className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 rounded-lg font-display font-bold uppercase transition-all duration-150"
+              style={{
+                background: 'rgba(255,179,0,.12)',
+                border: '1px solid rgba(255,179,0,.3)',
+                color: '#ffb300',
+              }}>
+              Demo Mode
+            </button>
           </div>
         </div>
 
-        {/* KPI cards - responsive grid */}
+        {/* Show message if no data */}
+        {localData.length === 0 && (
+          <div className="card-glass rounded-2xl p-6 text-center mb-5">
+            <p className="text-slate-400 text-sm">No health data found. Connect a device or click "Demo Mode" to generate sample data.</p>
+          </div>
+        )}
+
+        {/* KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
           <StatCard label="Avg Heart Rate" value={avg(hrVals) || '—'} unit="bpm" accentColor="#00e5ff"
             delta={hrVals.length ? `${hrPct > 0 ? '+' : ''}${hrPct}% vs baseline` : '—'}
@@ -385,10 +443,10 @@ export default function AnalyticsPage() {
           ] : []}
         />
 
-        {/* Bottom row - responsive grid */}
+        {/* Bottom row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HRZoneChart data={windowedData} />
-          <RiskTimeline data={bluetooth.history} />
+          <RiskTimeline data={localData} />
         </div>
       </main>
     </div>
