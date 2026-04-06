@@ -179,7 +179,7 @@ const RecordCard = ({ record, onDelete }) => {
   return (
     <div style={{
       background: "#111c1c",
-      border: `1px solid ${expanded ? "rgba(0,229,196,0.35)" : "#1a2e2e"}`,
+      border: `1px solid ${expanded ? "rgba(0, 0, 0, 0)" : "#1a2e2e"}`,
       borderRadius: 14, overflow: "hidden",
       transition: "border-color 0.2s, box-shadow 0.2s",
       boxShadow: expanded ? "0 0 24px rgba(0,229,196,0.05)" : "none",
@@ -405,7 +405,7 @@ const AddForm = ({ onSave, onCancel }) => {
       </div>
       <div style={{ display: "flex", gap: 10 }}>
         <button onClick={handleSave} style={{
-          background: "#00e5c4", color: "#0a0f0f",
+          background: "#000a34", color: "#0a0f0f",
           border: "none", borderRadius: 8, padding: "9px 20px",
           fontFamily: "monospace", fontSize: 12, fontWeight: 700, cursor: "pointer",
         }}>

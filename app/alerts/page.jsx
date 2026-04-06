@@ -112,46 +112,16 @@ export default function Dashboard() {
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#060d1a",
+      minHeight: "100vh", background: "#00000000",
       fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
       color: "#e2e8f0", padding: "0 0 40px 0",
     }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        .review-btn { background: transparent; border: 1px solid #334155; color: #94a3b8; padding: 7px 22px; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; transition: all 0.2s; }
-        .review-btn:hover { background: #1e293b; border-color: #64748b; color: #e2e8f0; }
-        .stat-card { background: #0d1829; border: 1px solid #1e293b; border-radius: 10px; padding: 18px 20px; }
-        .pulse { animation: pulse 2s infinite; } @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-        .blink { animation: blink 1.2s step-end infinite; } @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
-        .fade-in { animation: fadeIn 0.5s ease; } @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-        .alert-row:hover { background: rgba(255,255,255,0.03) !important; }
-      `}</style>
+     
 
-      {/* Header */}
-      <div style={{ background: "#0a1628", borderBottom: "1px solid #1e293b", padding: "14px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{ width: 38, height: 38, background: "linear-gradient(135deg,#3b82f6,#0ea5e9)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          </div>
-          <div>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.01em" }}>Alert command center</div>
-            <div style={{ fontSize: 10, color: "#64748b", letterSpacing: "0.15em" }}>HYPOGLYCEMIA MONITORING · REAL-TIME</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <span style={{ fontSize: 12, color: "#64748b" }}>06 APR 2026 · {fmtTime(time)}</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, background: "#0ea5e9", borderRadius: 20, padding: "5px 14px" }}>
-            <span className="blink" style={{ width: 7, height: 7, borderRadius: "50%", background: "#fff", display: "inline-block" }} />
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", letterSpacing: "0.1em" }}>LIVE FEED</span>
-          </div>
-        </div>
-      </div>
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 20px" }}>
         {/* Risk Level Banner */}
-        <div style={{ background: "linear-gradient(135deg,#0f1e35 0%,#0a1628 100%)", border: "1px solid #1e3a5f", borderRadius: 14, padding: "22px 28px", marginTop: 24, display: "flex", alignItems: "center", gap: 28 }}>
+        <div style={{ border: "1px solid #1e3a5f", borderRadius: 14, padding: "22px 28px", marginTop: 24, display: "flex", alignItems: "center", gap: 28 }}>
           <GaugeMeter score={73} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 10, color: "#64748b", letterSpacing: "0.18em", marginBottom: 4 }}>CURRENT RISK LEVEL</div>

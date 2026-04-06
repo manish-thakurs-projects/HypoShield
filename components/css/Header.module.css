@@ -9,7 +9,7 @@
 }
 .header {
   border-radius: 0 0 0 30px;
-  width: 16%;
+  width: 20%;
   height: 70px;
   padding: 0 40px;
 
@@ -22,7 +22,13 @@
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+.active {
+  color: #fff !important;
+}
 
+.active::after {
+  width: 100% !important;
+}
 .nav {
   display: flex;
   gap: 30px;
