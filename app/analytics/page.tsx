@@ -52,14 +52,14 @@ function StatCard({ label, value, unit, delta, deltaColor, accentColor }: StatCa
   return (
     <div className="card-glass rounded-2xl p-4 stat-card relative overflow-hidden"
       style={{ borderColor: `${accentColor}22` }}>
-      <div className="text-xs font-display font-semibold uppercase tracking-widest mb-2"
+      <div className="text-[10px] sm:text-xs font-display font-semibold uppercase tracking-widest mb-2"
         style={{ color: `${accentColor}80` }}>{label}</div>
-      <div className="flex items-baseline gap-1 mb-1">
-        <span className="font-mono font-bold text-3xl" style={{ color: accentColor }}>{value}</span>
-        {unit && <span className="font-display text-sm" style={{ color: `${accentColor}60` }}>{unit}</span>}
+      <div className="flex items-baseline gap-1 mb-1 flex-wrap">
+        <span className="font-mono font-bold text-2xl sm:text-3xl" style={{ color: accentColor }}>{value}</span>
+        {unit && <span className="font-display text-xs sm:text-sm" style={{ color: `${accentColor}60` }}>{unit}</span>}
       </div>
       {delta && (
-        <div className="text-xs font-mono" style={{ color: deltaColor || '#4a6080' }}>{delta}</div>
+        <div className="text-[10px] sm:text-xs font-mono break-words" style={{ color: deltaColor || '#4a6080' }}>{delta}</div>
       )}
       <div className="absolute bottom-0 left-0 right-0 h-0.5"
         style={{ background: `linear-gradient(90deg, ${accentColor}60, transparent)` }} />
@@ -88,28 +88,28 @@ function TrendChart({ data, dataKey, color, label, unit, subtitle, yMin, yMax, r
   }));
 
   return (
-    <div className="card-glass rounded-2xl p-5 mb-4">
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+    <div className="card-glass rounded-2xl p-4 sm:p-5 mb-4">
+      {/* Header - responsive stacking */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-3">
         <div>
-          <div className="text-xs font-display font-semibold uppercase tracking-widest mb-1"
+          <div className="text-[10px] sm:text-xs font-display font-semibold uppercase tracking-widest mb-1"
             style={{ color: `${color}60` }}>{label}</div>
-          <div className="text-base font-display font-bold text-slate-200">
-            {label} Trend <span className="text-slate-600 font-normal text-sm">{subtitle}</span>
+          <div className="text-sm sm:text-base font-display font-bold text-slate-200">
+            {label} Trend <span className="text-slate-600 font-normal text-xs sm:text-sm">{subtitle}</span>
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-3 sm:gap-4">
           {stats.map((s) => (
             <div key={s.label} className="text-right">
-              <div className="text-xs font-display uppercase tracking-widest text-slate-600 mb-0.5">{s.label}</div>
-              <div className="font-mono text-sm font-bold" style={{ color: s.color }}>{s.value}</div>
+              <div className="text-[9px] sm:text-xs font-display uppercase tracking-widest text-slate-600 mb-0.5">{s.label}</div>
+              <div className="font-mono text-xs sm:text-sm font-bold" style={{ color: s.color }}>{s.value}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Chart */}
-      <div style={{ height: 160 }}>
+      {/* Chart - responsive height */}
+      <div className="w-full" style={{ height: 'clamp(140px, 30vw, 180px)' }}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <defs>
@@ -119,16 +119,27 @@ function TrendChart({ data, dataKey, color, label, unit, subtitle, yMin, yMax, r
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,42,69,.4)" vertical={false} />
-            <XAxis dataKey="time" tick={{ fill: '#2a3a55', fontSize: 9, fontFamily: 'JetBrains Mono' }}
-              tickLine={false} axisLine={false} interval="preserveStartEnd" />
-            <YAxis domain={[yMin ?? 'auto', yMax ?? 'auto']}
-              tick={{ fill: '#2a3a55', fontSize: 9, fontFamily: 'JetBrains Mono' }}
-              tickLine={false} axisLine={false} />
+            <XAxis 
+              dataKey="time" 
+              tick={{ fill: '#2a3a55', fontSize: 8, fontFamily: 'JetBrains Mono' }}
+              tickLine={false} 
+              axisLine={false} 
+              interval="preserveStartEnd" 
+              angle={0}
+              dy={4}
+            />
+            <YAxis 
+              domain={[yMin ?? 'auto', yMax ?? 'auto']}
+              tick={{ fill: '#2a3a55', fontSize: 8, fontFamily: 'JetBrains Mono' }}
+              tickLine={false} 
+              axisLine={false} 
+              width={30}
+            />
             <Tooltip content={<CustomTooltip unit={unit} />} />
             {refLine && (
               <ReferenceLine y={refLine.y} stroke={refLine.color}
                 strokeDasharray="4 4" strokeOpacity={0.5}
-                label={{ value: refLine.label, fill: refLine.color, fontSize: 9, fontFamily: 'JetBrains Mono' }} />
+                label={{ value: refLine.label, fill: refLine.color, fontSize: 8, fontFamily: 'JetBrains Mono' }} />
             )}
             <Area type="monotone" dataKey="value" name={label} stroke={color} strokeWidth={2}
               fill={`url(#grad-${dataKey})`} dot={false}
@@ -137,11 +148,11 @@ function TrendChart({ data, dataKey, color, label, unit, subtitle, yMin, yMax, r
         </ResponsiveContainer>
       </div>
 
-      {/* Annotations */}
+      {/* Annotations - wrap on small screens */}
       {annotations && annotations.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
           {annotations.map((ann, i) => (
-            <span key={i} className="text-xs px-3 py-1 rounded-full font-display font-semibold"
+            <span key={i} className="text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-display font-semibold whitespace-nowrap"
               style={{ color: ann.color, background: `${ann.color}12`, border: `1px solid ${ann.color}25` }}>
               {ann.text}
             </span>
@@ -161,23 +172,25 @@ function HRZoneChart({ data }: { data: HealthData[] }) {
   const barData = zoneCounts.map((z) => ({ ...z, pct: Math.round((z.count / total) * 100) }));
 
   return (
-    <div className="card-glass rounded-2xl p-5">
-      <div className="text-xs font-display font-semibold uppercase tracking-widest mb-1"
+    <div className="card-glass rounded-2xl p-4 sm:p-5">
+      <div className="text-[10px] sm:text-xs font-display font-semibold uppercase tracking-widest mb-1"
         style={{ color: 'rgba(77,159,255,.5)' }}>Distribution</div>
-      <div className="text-base font-display font-bold text-slate-200 mb-4">HR Zone Breakdown</div>
+      <div className="text-sm sm:text-base font-display font-bold text-slate-200 mb-4">HR Zone Breakdown</div>
 
-      {/* Heat cells */}
-      <div className="flex gap-1.5 mb-1">
+      {/* Zone labels - responsive grid */}
+      <div className="grid grid-cols-5 gap-1 mb-1">
         {barData.map((z) => (
-          <div key={z.label} className="flex-1 text-center text-[9px] font-display font-bold uppercase tracking-wider"
+          <div key={z.label} className="text-center text-[8px] sm:text-[9px] font-display font-bold uppercase tracking-wider truncate"
             style={{ color: z.color }}>{z.label}</div>
         ))}
       </div>
-      <div className="flex gap-1.5 mb-4">
+      
+      {/* Zone percentages - responsive bars */}
+      <div className="grid grid-cols-5 gap-1 mb-4">
         {barData.map((z) => {
           const alpha = 0.15 + (z.count / Math.max(...barData.map(b => b.count || 1))) * 0.7;
           return (
-            <div key={z.label} className="flex-1 h-8 rounded-lg flex items-center justify-center text-xs font-mono font-bold"
+            <div key={z.label} className="h-8 rounded-lg flex items-center justify-center text-[10px] sm:text-xs font-mono font-bold truncate px-1"
               style={{ backgroundColor: `${z.color}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`, color: z.color }}>
               {z.pct}%
             </div>
@@ -185,16 +198,18 @@ function HRZoneChart({ data }: { data: HealthData[] }) {
         })}
       </div>
 
-      {/* Bar chart */}
-      {barData.map((z) => (
-        <div key={z.label} className="flex items-center gap-2 mb-2">
-          <div className="w-14 text-right text-[9px] font-display font-bold uppercase" style={{ color: z.color }}>{z.label}</div>
-          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(26,42,69,.5)' }}>
-            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${z.pct}%`, backgroundColor: z.color }} />
+      {/* Detailed breakdown - responsive */}
+      <div className="space-y-2">
+        {barData.map((z) => (
+          <div key={z.label} className="flex items-center gap-2">
+            <div className="w-12 sm:w-14 text-right text-[8px] sm:text-[9px] font-display font-bold uppercase truncate" style={{ color: z.color }}>{z.label}</div>
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(26,42,69,.5)' }}>
+              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${z.pct}%`, backgroundColor: z.color }} />
+            </div>
+            <div className="w-6 sm:w-7 text-[8px] sm:text-[9px] font-mono text-slate-600 text-right">{z.count}</div>
           </div>
-          <div className="w-7 text-[9px] font-mono text-slate-600">{z.count}</div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
@@ -210,11 +225,12 @@ function RiskTimeline({ data }: { data: HealthData[] }) {
   };
 
   return (
-    <div className="card-glass rounded-2xl p-5">
-      <div className="text-xs font-display font-semibold uppercase tracking-widest mb-1"
+    <div className="card-glass rounded-2xl p-4 sm:p-5">
+      <div className="text-[10px] sm:text-xs font-display font-semibold uppercase tracking-widest mb-1"
         style={{ color: 'rgba(255,61,90,.5)' }}>Timeline</div>
-      <div className="text-base font-display font-bold text-slate-200 mb-4">Risk Level History</div>
+      <div className="text-sm sm:text-base font-display font-bold text-slate-200 mb-4">Risk Level History</div>
 
+      {/* Risk timeline bars - responsive */}
       <div className="flex gap-0.5 h-4 rounded-lg overflow-hidden mb-1">
         {slice.map((d, i) => {
           const risk = calculateRisk(d);
@@ -222,20 +238,21 @@ function RiskTimeline({ data }: { data: HealthData[] }) {
           return <div key={i} className="flex-1 rounded-sm" style={{ backgroundColor: c + '80' }} />;
         })}
       </div>
-      <div className="flex justify-between text-[9px] font-mono text-slate-700 mb-4">
+      <div className="flex justify-between text-[8px] sm:text-[9px] font-mono text-slate-700 mb-4">
         <span>Oldest</span><span>Most Recent</span>
       </div>
 
-      <div className="flex gap-4 flex-wrap">
+      {/* Legend - responsive wrap */}
+      <div className="flex flex-wrap gap-3 sm:gap-4">
         {[
           { label: 'SAFE', count: counts.safe, color: '#00ff88' },
           { label: 'MODERATE', count: counts.mod, color: '#ffb300' },
           { label: 'HIGH RISK', count: counts.high, color: '#ff3d5a' },
         ].map((r) => (
           <div key={r.label} className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: r.color }} />
-            <span className="text-xs font-display font-bold" style={{ color: r.color }}>{r.label}</span>
-            <span className="text-xs font-mono" style={{ color: '#2a3a45' }}>{r.count}</span>
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm" style={{ backgroundColor: r.color }} />
+            <span className="text-[10px] sm:text-xs font-display font-bold" style={{ color: r.color }}>{r.label}</span>
+            <span className="text-[10px] sm:text-xs font-mono" style={{ color: '#2a3a45' }}>{r.count}</span>
           </div>
         ))}
       </div>
@@ -247,11 +264,21 @@ export default function AnalyticsPage() {
   const bluetooth = useBluetooth();
   const [timeRange, setTimeRange] = useState<TimeRange>('1m');
   const [now, setNow] = useState(new Date());
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (!bluetooth.isConnected) bluetooth.simulateData();
     const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
+    
+    // Check for mobile screen size
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      clearInterval(t);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   const windowedData = useMemo(() => {
@@ -271,19 +298,19 @@ export default function AnalyticsPage() {
 
   return (
     <div>
-      <main className="px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto">
-        {/* Page title + range selector */}
-        <div className="flex items-start justify-between mb-5">
+      <main className="px-3 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-6xl mx-auto">
+        {/* Page title + range selector - responsive stack */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-5 gap-3">
           <div>
-            <h1 className="text-2xl font-display font-extrabold text-slate-100">Health Analytics</h1>
-            <p className="text-sm text-slate-600 mt-0.5 font-body">
+            <h1 className="text-xl sm:text-2xl font-display font-extrabold text-slate-100">Health Analytics</h1>
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5 font-body break-words">
               Real-time trends · {bluetooth.deviceName ?? 'HypoShield (Demo)'} · ESP32 BLE
             </p>
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             {(['1m', '5m', '10m', 'all'] as TimeRange[]).map((r) => (
               <button key={r} onClick={() => setTimeRange(r)}
-                className="text-xs px-3 py-1.5 rounded-lg font-display font-bold uppercase transition-all duration-150"
+                className="text-[10px] sm:text-xs px-2 sm:px-3 py-1.5 rounded-lg font-display font-bold uppercase transition-all duration-150"
                 style={{
                   background: timeRange === r ? 'rgba(0,229,255,.12)' : 'rgba(13,20,37,.8)',
                   border: timeRange === r ? '1px solid rgba(0,229,255,.3)' : '1px solid rgba(26,42,69,.8)',
@@ -295,8 +322,8 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* KPI cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        {/* KPI cards - responsive grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
           <StatCard label="Avg Heart Rate" value={avg(hrVals) || '—'} unit="bpm" accentColor="#00e5ff"
             delta={hrVals.length ? `${hrPct > 0 ? '+' : ''}${hrPct}% vs baseline` : '—'}
             deltaColor={hrPct > 5 ? '#ff3d5a' : hrPct < -5 ? '#00ff88' : '#4a6080'} />
@@ -311,7 +338,7 @@ export default function AnalyticsPage() {
             deltaColor={riskEvents > windowedData.length * 0.2 ? '#ff3d5a' : riskEvents > 0 ? '#ffb300' : '#00ff88'} />
         </div>
 
-        {/* HR Chart */}
+        {/* Charts */}
         <TrendChart data={windowedData} dataKey="heartRate" color="#00e5ff"
           label="Heart Rate" unit=" bpm" subtitle="— beats per minute"
           yMin={45} yMax={130}
@@ -328,7 +355,6 @@ export default function AnalyticsPage() {
           ] : []}
         />
 
-        {/* SpO2 Chart */}
         <TrendChart data={windowedData} dataKey="spo2" color="#00ff88"
           label="SpO₂" unit="%" subtitle="— blood oxygen saturation"
           yMin={88} yMax={101}
@@ -344,7 +370,6 @@ export default function AnalyticsPage() {
           ] : []}
         />
 
-        {/* Activity Chart */}
         <TrendChart data={windowedData} dataKey="activity" color="#ffb300"
           label="Activity" unit=" steps" subtitle="— movement intensity"
           yMin={0} yMax={2400}
@@ -360,7 +385,7 @@ export default function AnalyticsPage() {
           ] : []}
         />
 
-        {/* Bottom row */}
+        {/* Bottom row - responsive grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <HRZoneChart data={windowedData} />
           <RiskTimeline data={bluetooth.history} />
