@@ -4,6 +4,7 @@ import { useBluetooth } from '@/hooks/useBluetooth';
 import Dashboard from '@/components/Dashboard';
 import { useEffect, useState } from 'react';
 
+
 // EKG animation path
 function EkgBackground() {
   return (
@@ -58,9 +59,10 @@ function ConnectScreen({
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-cente px-4 relative overflow-hidden">
       <EkgBackground />
-
+      
+      
       {/* Radial glow */}
       <div
         className="absolute inset-0 pointer-events-none"

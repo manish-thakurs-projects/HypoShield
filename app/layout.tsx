@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Header from '@/components/Header';
 
 export const metadata: Metadata = {
   title: 'HypoShield — Real-Time Health Monitor',
@@ -17,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="scan-overlay grid-bg min-h-screen">
+      <Header/>
         {children}
       </body>
     </html>
